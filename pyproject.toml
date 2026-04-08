@@ -1,0 +1,32 @@
+[project]
+name = "biotech-env"
+version = "0.1.0"
+description = "Biotech RL environment for clinical decision making"
+authors = [
+  { name = "Sandhiya" }
+]
+dependencies = [
+  "fastapi",
+  "uvicorn",
+  "pydantic",
+  "requests",
+  "openai",
+  "fastmcp",
+  "openenv-core>=0.2.0"
+]
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+dependencies = [
+  "fastapi",
+  "uvicorn",
+  "pydantic",
+  "requests",
+  "openai",
+  "fastmcp",
+  "openenv-core>=0.2.0"
+]
+
+[project.scripts]
+server = "server.app:main"

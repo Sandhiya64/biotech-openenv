@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.sqlite
+*.log
+.env
+.vscode/
+*.egg-info/
+uv.lock
+images/
+OpenEnv/

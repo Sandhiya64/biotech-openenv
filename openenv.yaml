@@ -1,0 +1,32 @@
+name: trt_env
+description: A real-world reinforcement learning environment for clinical decision-making.
+  The agent selects treatments for simulated patients based on symptoms and vitals.
+
+version: 1.0
+
+entrypoint: src/envs/biotech_env/server/app.py
+
+actions:
+  type: object
+  properties:
+    action_type:
+      type: string
+      enum: ["antibiotic", "antiviral", "test", "wait"]
+
+observation:
+  type: object
+  properties:
+    symptoms:
+      type: array
+      items:
+        type: string
+    vitals:
+      type: object
+    health_score:
+      type: number
+    done:
+      type: boolean
+    reward:
+      type: number
+
+reward_range: [0.0, 1.0]
