@@ -192,7 +192,7 @@ def grade_easy(actions):
         steps = actions.index("antibiotic") + 1
 
         if steps == 1:
-            return 1.0
+            return 0.9
         elif steps <= 3:
             return 0.8
         else:
@@ -209,7 +209,7 @@ def grade_medium(actions):
         steps = actions.index("antiviral") + 1
 
         if steps == 1:
-            return 1.0
+            return 0.9
         elif steps <= 3:
             return 0.7
         else:
@@ -229,7 +229,7 @@ def grade_hard(actions):
             steps = i + 1
 
             if steps <= 3:
-                return 1.0
+                return 0.9
             elif steps <= 5:
                 return 0.7
             else:
