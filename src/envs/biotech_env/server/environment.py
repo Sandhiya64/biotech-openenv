@@ -64,7 +64,7 @@ class BiotechEnvironment(Environment):
             vitals={"temp": 101.0},
             health_score=50.0,
             done=False,
-            reward=0.0
+            reward=0.1
         )
 
     # -------------------------
@@ -116,7 +116,7 @@ class BiotechEnvironment(Environment):
         self.history.append(action_type)
         self._state.step_count += 1
 
-        reward = 0.0
+        reward = 0.1
         done = False
 
         disease = self._state.disease
@@ -126,7 +126,7 @@ class BiotechEnvironment(Environment):
         # -------------------------
         if disease == "bacterial":
             if action_type == "antibiotic":
-                reward = 1.0
+                reward = 0.9
                 done = True
             elif action_type == "test":
                 reward = 0.3
@@ -135,7 +135,7 @@ class BiotechEnvironment(Environment):
 
         elif disease == "viral":
             if action_type == "antiviral":
-                reward = 1.0
+                reward = 0.9
                 done = True
             elif action_type == "test":
                 reward = 0.2
@@ -147,7 +147,7 @@ class BiotechEnvironment(Environment):
                 reward = 0.5
             elif action_type in ["antibiotic", "antiviral"]:
                 if "test" in self.history[:-1]:
-                    reward = 1.0
+                    reward = 0.9
                     done = True
                 else:
                     reward = -0.2
