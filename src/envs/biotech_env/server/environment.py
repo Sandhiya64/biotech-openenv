@@ -131,7 +131,7 @@ class BiotechEnvironment(Environment):
             elif action_type == "test":
                 reward = 0.3
             else:
-                reward = -0.3
+                reward = 0
 
         elif disease == "viral":
             if action_type == "antiviral":
@@ -140,7 +140,7 @@ class BiotechEnvironment(Environment):
             elif action_type == "test":
                 reward = 0.2
             elif action_type == "antibiotic":
-                reward = -0.5
+                reward = 0
 
         elif disease == "ambiguous":
             if action_type == "test":
@@ -150,14 +150,14 @@ class BiotechEnvironment(Environment):
                     reward = 0.9
                     done = True
                 else:
-                    reward = -0.2
+                    reward = 0
 
         # -------------------------
         # LIMIT
         # -------------------------
         if self._state.step_count > 5:
             done = True
-            reward -= 0.2
+            reward -= 0
 
         # -------------------------
         # RETURN
