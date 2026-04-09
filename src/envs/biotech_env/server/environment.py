@@ -198,12 +198,11 @@ def grade_easy(actions):
         else:
             return 0.5
 
-    return 0.0
-
+    return 0.2 
 
 def grade_medium(actions):
     if "antibiotic" in actions:
-        return 0.0
+        return 0.2
 
     if "antiviral" in actions:
         steps = actions.index("antiviral") + 1
@@ -220,7 +219,7 @@ def grade_medium(actions):
 
 def grade_hard(actions):
     if "test" not in actions:
-        return 0.0
+        return 0.2
 
     test_index = actions.index("test")
 
@@ -236,3 +235,9 @@ def grade_hard(actions):
                 return 0.5
 
     return 0.3
+
+GRADERS = {
+    "easy": grade_easy,
+    "medium": grade_medium,
+    "hard": grade_hard
+}
