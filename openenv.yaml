@@ -6,6 +6,16 @@ version: 1.0
 
 entrypoint: src/envs/biotech_env/server/app.py
 
+tasks:
+  - name: easy
+    grader: src.envs.biotech_env.server.environment:grade_easy
+
+  - name: medium
+    grader: src.envs.biotech_env.server.environment:grade_medium
+
+  - name: hard
+    grader: src.envs.biotech_env.server.environment:grade_hard
+
 actions:
   type: object
   properties:
