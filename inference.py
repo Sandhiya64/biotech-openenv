@@ -26,7 +26,7 @@ def get_action(obs, task):
 def run_task(env, task):
     print(f"[START] Task: {task}")
 
-    obs = env.reset(task=task)
+    obs = env.reset()
     done = False
 
     while not done:
@@ -41,11 +41,14 @@ def run_task(env, task):
 
 
 def main():
-    env = BiotechEnvironment()
+    try:
+        env = BiotechEnvironment()
 
-    for task in ["easy", "medium", "hard"]:
-        run_task(env, task)
+        for task in ["easy", "medium", "hard"]:
+            run_task(env, task)
 
+    except Exception as e:
+        print(f"[ERROR] {str(e)}")
 
 if __name__ == "__main__":
     main()
