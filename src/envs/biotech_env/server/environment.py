@@ -159,6 +159,7 @@ class BiotechEnvironment(Environment):
             done = True
             reward -= 0
 
+        reward = max(0.1, min(0.9, reward))
         # -------------------------
         # RETURN
         # -------------------------
@@ -186,55 +187,48 @@ class BiotechEnvironment(Environment):
 # =========================
 # GRADERS
 # =========================
+# =========================
+# GRADERS — SAFE VERSION (strictly between 0.01 and 0.99)
+# =========================
 
 def grade_easy(actions):
     if "antibiotic" in actions:
         steps = actions.index("antibiotic") + 1
-
         if steps == 1:
-            return 0.9
+            return 0.88
         elif steps <= 3:
-            return 0.8
+            return 0.75
         else:
-            return 0.5
-
-    return 0.2 
+            return 0.55
+    return 0.22
 
 def grade_medium(actions):
     if "antibiotic" in actions:
-        return 0.2
-
+        return 0.12
     if "antiviral" in actions:
         steps = actions.index("antiviral") + 1
-
         if steps == 1:
-            return 0.9
+            return 0.88
         elif steps <= 3:
-            return 0.7
+            return 0.72
         else:
-            return 0.4
-
-    return 0.3
-
+            return 0.48
+    return 0.25
 
 def grade_hard(actions):
     if "test" not in actions:
-        return 0.2
-
+        return 0.18
     test_index = actions.index("test")
-
     for i in range(test_index + 1, len(actions)):
         if actions[i] in ["antibiotic", "antiviral"]:
             steps = i + 1
-
             if steps <= 3:
-                return 0.9
+                return 0.88
             elif steps <= 5:
-                return 0.7
+                return 0.72
             else:
-                return 0.5
-
-    return 0.3
+                return 0.52
+    return 0.35
 
 GRADERS = {
     "easy": grade_easy,
