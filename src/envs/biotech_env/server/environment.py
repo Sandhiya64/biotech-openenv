@@ -185,50 +185,53 @@ class BiotechEnvironment(Environment):
 # =========================
 # GRADERS
 # =========================
+# =========================
+# GRADERS (Strictly 0.1 - 0.9)
+# =========================
 def grade_easy(actions):
     if not actions or len(actions) == 0:
         return 0.25
     if "antibiotic" in actions:
         steps = actions.index("antibiotic") + 1
         if steps == 1:
-            return 0.82
+            return 0.85  # Changed from 1.0 or high boundary
         elif steps <= 3:
             return 0.72
         else:
             return 0.55
-    return 0.22
+    return 0.15  # Changed from 0.0
 
 def grade_medium(actions):
     if not actions or len(actions) == 0:
         return 0.25
     if "antibiotic" in actions:
-        return 0.15
+        return 0.15  # Penalty, but not 0.0
     if "antiviral" in actions:
         steps = actions.index("antiviral") + 1
         if steps == 1:
-            return 0.82
+            return 0.85
         elif steps <= 3:
             return 0.68
         else:
             return 0.48
-    return 0.25
+    return 0.15
 
 def grade_hard(actions):
     if not actions or len(actions) == 0:
         return 0.25
     if "test" not in actions:
         return 0.18
-    test_index = actions.index("test")
-    for i in range(test_index + 1, len(actions)):
-        if actions[i] in ["antibiotic", "antiviral"]:
-            steps = i + 1
-            if steps <= 3:
-                return 0.82
-            elif steps <= 5:
-                return 0.68
-            else:
-                return 0.55
-    return 0.35
+    
+    # Logic to check if they treated correctly after testing
+    # Ensure no path returns 0.0 or 1.0
+    try:
+        test_index = actions.index("test")
+        remaining = actions[test_index+1:]
+        if "antiviral" in remaining or "antibiotic" in remaining:
+            return 0.80
+        return 0.35
+    except:
+        return 0.15
 
 GRADERS = {
     "easy": grade_easy,
