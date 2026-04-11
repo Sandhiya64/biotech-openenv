@@ -210,7 +210,7 @@ def grade_hard(actions):
             score = 0.82
         else:
             score = 0.45
-    return max(0.1, min(0.9, score))
+    return max(0.2, min(0.8, score))
 GRADERS = {
     "easy": grade_easy,
     "medium": grade_medium,
