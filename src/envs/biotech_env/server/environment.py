@@ -10,11 +10,10 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[3]))
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../..")))
 from openenv.core.env_server.mcp_environment import Environment
-from models import (
-    BiotechObservation,
-    BiotechState,
-    BiotechAction,
-)
+# Change this:
+# from models import BiotechObservation
+# To this:
+from src.envs.biotech_env.models import BiotechObservation, BiotechState, BiotechAction
 # =========================
 # TASK DEFINITIONS
 # =========================
@@ -185,53 +184,41 @@ class BiotechEnvironment(Environment):
 # =========================
 # GRADERS
 # =========================
-# =========================
-# GRADERS (Strictly 0.1 - 0.9)
-# =========================
 def grade_easy(actions):
-    if not actions or len(actions) == 0:
-        return 0.25
-    if "antibiotic" in actions:
+    # Ensure a safe default that is NOT 0.0 or 1.0
+    score = 0.35 
+    if actions and "antibiotic" in actions:
         steps = actions.index("antibiotic") + 1
-        if steps == 1:
-            return 0.85  # Changed from 1.0 or high boundary
-        elif steps <= 3:
-            return 0.72
-        else:
-            return 0.55
-    return 0.15  # Changed from 0.0
+        score = 0.85 if steps == 1 else 0.65
+    return max(0.2, min(0.8, score)) # Final hard clamp
 
 def grade_medium(actions):
-    if not actions or len(actions) == 0:
-        return 0.25
-    if "antibiotic" in actions:
-        return 0.15  # Penalty, but not 0.0
-    if "antiviral" in actions:
+    score = 0.35
+    if actions and "antiviral" in actions:
         steps = actions.index("antiviral") + 1
-        if steps == 1:
-            return 0.85
-        elif steps <= 3:
-            return 0.68
-        else:
-            return 0.48
-    return 0.15
+        score = 0.85 if steps == 1 else 0.65
+    # Penalty for wrong treatment, but kept strictly > 0
+    if actions and "antibiotic" in actions:
+        score = 0.25
+    return max(0.2, min(0.8, score))
 
 def grade_hard(actions):
-    if not actions or len(actions) == 0:
-        return 0.25
-    if "test" not in actions:
-        return 0.18
-    
-    # Logic to check if they treated correctly after testing
-    # Ensure no path returns 0.0 or 1.0
-    try:
-        test_index = actions.index("test")
-        remaining = actions[test_index+1:]
-        if "antiviral" in remaining or "antibiotic" in remaining:
-            return 0.80
+    score = 0.35
+    if not actions:
         return 0.35
-    except:
-        return 0.15
+    
+    # Logic: Did they test then treat?
+    if "test" in actions:
+        idx = actions.index("test")
+        remaining = actions[idx+1:]
+        if "antiviral" in remaining or "antibiotic" in remaining:
+            score = 0.80
+        else:
+            score = 0.45
+    else:
+        score = 0.20 # Failed to test, but not 0.0
+        
+    return max(0.2, min(0.8, score))
 
 GRADERS = {
     "easy": grade_easy,
