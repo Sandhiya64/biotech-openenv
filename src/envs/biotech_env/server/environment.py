@@ -15,8 +15,6 @@ from models import (
     BiotechState,
     BiotechAction,
 )
-
-
 # =========================
 # TASK DEFINITIONS
 # =========================

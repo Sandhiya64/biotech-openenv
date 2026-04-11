@@ -29,4 +29,4 @@ dependencies = [
 ]
 
 [project.scripts]
-server = "server.app:main"
+server = "src.envs.biotech_env.server.app:main"
