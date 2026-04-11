@@ -70,12 +70,16 @@ def run_task(env, task):
         steps += 1
 
     # Calculate final score
-    # In your run_task function:
-    final_score = sum(rewards) / len(rewards) if rewards else 0.5
-    # Use 0.2 to 0.8 to be extremely safe from the "out of range" error
-    final_score = max(0.2, min(0.8, final_score))
+# After the while loop finishes...
+    if not rewards:
+        final_score = 0.5 
+    else:
+        final_score = sum(rewards) / len(rewards)
+
+    # Use a tight safety buffer to avoid floating point errors or 1.0/0.0 triggers
+    final_score = max(0.1, min(0.9, final_score))
+
     print(f"[END] Task: {task} | Final Reward: {final_score}\n")
-        
 def main():
     try:
         env = BiotechEnvironment()
