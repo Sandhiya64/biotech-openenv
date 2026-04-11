@@ -78,15 +78,12 @@ def run_task(env, task):
 
     # 🔥 CRITICAL: compute score
     if len(rewards) == 0:
-        score = 0.1
+        score = 0.25
     else:
-        score = sum(rewards) / (len(rewards) * 1.0)
+        score = sum(rewards) / len(rewards)
 
-    # 🔥 enforce strict range
-    if score <= 0.0:
-        score = 0.1
-    elif score >= 1.0:
-        score = 0.9
+    # Force strictly inside (0, 1)
+    score = max(0.05, min(0.95, score))
 
     print(f"[END] Task: {task} | Final Reward: {score}\n")
 
