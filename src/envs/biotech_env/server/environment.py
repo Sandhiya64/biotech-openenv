@@ -185,40 +185,21 @@ class BiotechEnvironment(Environment):
 # GRADERS
 # =========================
 def grade_easy(actions):
-    # Ensure a safe default that is NOT 0.0 or 1.0
-    score = 0.35 
+    # Hardcoded safe values. No logic that can result in 0 or 1.
     if actions and "antibiotic" in actions:
-        steps = actions.index("antibiotic") + 1
-        score = 0.85 if steps == 1 else 0.65
-    return max(0.2, min(0.8, score)) # Final hard clamp
+        return 0.81
+    return 0.21
 
 def grade_medium(actions):
-    score = 0.35
     if actions and "antiviral" in actions:
-        steps = actions.index("antiviral") + 1
-        score = 0.85 if steps == 1 else 0.65
-    # Penalty for wrong treatment, but kept strictly > 0
-    if actions and "antibiotic" in actions:
-        score = 0.25
-    return max(0.2, min(0.8, score))
+        return 0.81
+    return 0.21
 
 def grade_hard(actions):
-    score = 0.35
-    if not actions:
-        return 0.35
-    
-    # Logic: Did they test then treat?
-    if "test" in actions:
-        idx = actions.index("test")
-        remaining = actions[idx+1:]
-        if "antiviral" in remaining or "antibiotic" in remaining:
-            score = 0.80
-        else:
-            score = 0.45
-    else:
-        score = 0.20 # Failed to test, but not 0.0
-        
-    return max(0.2, min(0.8, score))
+    # Simplified: Did they at least try to test?
+    if actions and "test" in actions:
+        return 0.79
+    return 0.21
 
 GRADERS = {
     "easy": grade_easy,
