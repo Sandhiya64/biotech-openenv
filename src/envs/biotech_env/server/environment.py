@@ -1,3 +1,4 @@
+from abc import abstractmethod
 import os
 import sys
 
@@ -40,6 +41,7 @@ class BiotechEnvironment(Environment):
     # -------------------------
     # RESET
     # -------------------------
+    @abstractmethod
     def reset(self, task_name="easy"):
         task = TASKS[task_name]
 
@@ -56,12 +58,13 @@ class BiotechEnvironment(Environment):
             vitals={"temp": 101.0},
             health_score=50.0,
             done=False,
-            reward=0.11
+            reward=float(0.11)
         )
 
     # -------------------------
     # STEP
     # -------------------------
+    @abstractmethod
     def step(self, action):
 
         # -------------------------
@@ -149,7 +152,6 @@ class BiotechEnvironment(Environment):
         # -------------------------
         if self._state.step_count > 5:
             done = True
-            reward -= 0
 
         reward = max(0.11, min(0.89, float(reward)))
         if not isinstance(reward, float):
@@ -166,9 +168,9 @@ class BiotechEnvironment(Environment):
             symptoms=["updated"],
             vitals={"temp": 99.0},
             health_score=60.0,
-            done=done,
-            reward=reward
-        )
+            done=bool(done),
+            reward=float(round(reward, 3))
+            )
 
     # -------------------------
     # STATE
