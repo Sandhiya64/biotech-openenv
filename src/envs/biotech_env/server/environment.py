@@ -1,20 +1,15 @@
-from abc import abstractmethod
-import sys
 import os
-import random
+import sys
 
-# Add OpenEnv path
-sys.path.append(os.path.abspath("OpenEnv/src"))
-from pathlib import Path
+# Force the project root into sys.path so the validator can find everything
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.abspath(os.path.join(current_dir, "../../../.."))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
 
-sys.path.append(str(Path(__file__).resolve().parents[3]))
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../..")))
 from openenv.core.env_server.mcp_environment import Environment
-# Change this:
-# from models import BiotechObservation
-# To this:
+# USE ABSOLUTE IMPORT
 from src.envs.biotech_env.models import BiotechObservation, BiotechState, BiotechAction
-# =========================
 # TASK DEFINITIONS
 # =========================
 TASKS = {
