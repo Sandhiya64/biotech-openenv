@@ -1,16 +1,20 @@
-from abc import abstractmethod
 import os
 import sys
+from abc import abstractmethod
 
-# Force the project root into sys.path so the validator can find everything
+# Absolute path setup
 current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.abspath(os.path.join(current_dir, "../../../.."))
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
 from openenv.core.env_server.mcp_environment import Environment
-# USE ABSOLUTE IMPORT
-from src.envs.biotech_env.models import BiotechObservation, BiotechState, BiotechAction
+# FIX: Absolute import
+from src.envs.biotech_env.models import (
+    BiotechObservation,
+    BiotechState,
+    BiotechAction,
+)
 # TASK DEFINITIONS
 # =========================
 TASKS = {
@@ -38,12 +42,8 @@ class BiotechEnvironment(Environment):
         self._state = None
         self.history = []
 
-    # -------------------------
-    # RESET
-    # -------------------------
-    @abstractmethod
     def reset(self, task_name="easy"):
-        task = TASKS[task_name]
+        task = TASKS.get(task_name, TASKS["easy"])
 
         self._state = BiotechState(
             step_count=0,
@@ -58,56 +58,25 @@ class BiotechEnvironment(Environment):
             vitals={"temp": 101.0},
             health_score=50.0,
             done=False,
-            reward=float(0.11)
+            reward=0.11
         )
 
-    # -------------------------
-    # STEP
-    # -------------------------
-    @abstractmethod
     def step(self, action):
 
-        # -------------------------
-        # SAFE ACTION EXTRACTION
-        # -------------------------
-            # 🚨 FIX: ensure state always exists
         if self._state is None:
-            # fallback initialization (same as reset)
-            task = TASKS["easy"]
+            return self.reset()
 
-            self._state = BiotechState(
-                step_count=0,
-                disease=task["disease"],
-                treated=False
-            )
+        # Extract action safely
+        if isinstance(action, dict):
+            action_type = action.get("action_type", "wait")
+        elif hasattr(action, "action_type"):
+            action_type = action.action_type
+        else:
+            action_type = "wait"
 
-            self.history = []
-        try:
-            # Case 1: OpenEnv wrapped
-            if isinstance(action, dict) and "action" in action:
-                action = action["action"]
-
-            # Case 2: dict
-            if isinstance(action, dict):
-                action_type = action.get("action_type")
-
-            # Case 3: object
-            elif hasattr(action, "action_type"):
-                action_type = action.action_type
-
-            else:
-                action_type = None
-
-        except Exception:
-            action_type = None
-
-        # 🚨 FINAL fallback (prevents crash)
         if action_type not in ["antibiotic", "antiviral", "test", "wait"]:
             action_type = "wait"
 
-        # -------------------------
-        # STATE UPDATE
-        # -------------------------
         self.history.append(action_type)
         self._state.step_count += 1
 
@@ -116,61 +85,31 @@ class BiotechEnvironment(Environment):
 
         disease = self._state.disease
 
-        # -------------------------
-        # LOGIC
-        # -------------------------
         if disease == "bacterial":
             if action_type == "antibiotic":
-                reward = 0.9
+                reward = 0.89
                 done = True
-            elif action_type == "test":
-                reward = 0.3
-            else:
-                reward = 0.11
 
         elif disease == "viral":
             if action_type == "antiviral":
-                reward = 0.9
+                reward = 0.89
                 done = True
-            elif action_type == "test":
-                reward = 0.2
-            elif action_type == "antibiotic":
-                reward = 0.11
 
         elif disease == "ambiguous":
             if action_type == "test":
                 reward = 0.5
             elif action_type in ["antibiotic", "antiviral"]:
                 if "test" in self.history[:-1]:
-                    reward = 0.9
+                    reward = 0.89
                     done = True
-                else:
-                    reward = 0.11
 
-        # -------------------------
-        # LIMIT
-        # -------------------------
-        if self._state.step_count > 5:
-            done = True
-
-        reward = max(0.11, min(0.89, float(reward)))
-        if not isinstance(reward, float):
-            reward = 0.5
-
-        if reward <= 0.1:
-            reward = 0.11
-        elif reward >= 0.9:
-            reward = 0.89
-        # -------------------------
-        # RETURN
-        # -------------------------
         return BiotechObservation(
             symptoms=["updated"],
             vitals={"temp": 99.0},
             health_score=60.0,
-            done=bool(done),
-            reward=float(round(reward, 3))
-            )
+            done=done,
+            reward=float(reward)
+        )
 
     # -------------------------
     # STATE
