@@ -217,8 +217,11 @@ def safe_return(score):
 # =========================
 # GRADERS (Strictly 0.2 - 0.8)
 # =========================
+import random
+
 def grade_easy(actions):
-    # Base score
+    print(f"[DEBUG grade_easy] Input actions: {actions}")
+    
     if actions and "antibiotic" in actions:
         steps = actions.index("antibiotic") + 1
         if steps == 1:
@@ -228,14 +231,21 @@ def grade_easy(actions):
     else:
         base_score = 0.245
     
-    # Add random variation between -0.005 and +0.005
-    variation = random.uniform(-0.004, 0.004)
+    variation = random.uniform(-0.005, 0.005)
     score = base_score + variation
     
     # Ensure strictly between 0 and 1
-    return max(0.005, min(0.995, score))
+    if score <= 0.01:
+        score = 0.015
+    if score >= 0.99:
+        score = 0.985
+    
+    print(f"[DEBUG grade_easy] Base score: {base_score}, Variation: {variation}, Final score: {score}")
+    return score
 
 def grade_medium(actions):
+    print(f"[DEBUG grade_medium] Input actions: {actions}")
+    
     if actions and "antiviral" in actions:
         steps = actions.index("antiviral") + 1
         if steps == 1:
@@ -245,11 +255,20 @@ def grade_medium(actions):
     else:
         base_score = 0.245
     
-    variation = random.uniform(-0.004, 0.004)
+    variation = random.uniform(-0.005, 0.005)
     score = base_score + variation
-    return max(0.005, min(0.995, score))
+    
+    if score <= 0.01:
+        score = 0.015
+    if score >= 0.99:
+        score = 0.985
+    
+    print(f"[DEBUG grade_medium] Base score: {base_score}, Variation: {variation}, Final score: {score}")
+    return score
 
 def grade_hard(actions):
+    print(f"[DEBUG grade_hard] Input actions: {actions}")
+    
     if actions and "test" in actions:
         test_index = actions.index("test")
         if any(a in ["antibiotic", "antiviral"] for a in actions[test_index+1:]):
@@ -259,10 +278,16 @@ def grade_hard(actions):
     else:
         base_score = 0.245
     
-    variation = random.uniform(-0.004, 0.004)
+    variation = random.uniform(-0.005, 0.005)
     score = base_score + variation
-    return max(0.005, min(0.995, score))
-
+    
+    if score <= 0.01:
+        score = 0.015
+    if score >= 0.99:
+        score = 0.985
+    
+    print(f"[DEBUG grade_hard] Base score: {base_score}, Variation: {variation}, Final score: {score}")
+    return score
 GRADERS = {
     "easy": grade_easy,
     "medium": grade_medium,
