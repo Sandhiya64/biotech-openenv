@@ -156,7 +156,14 @@ class BiotechEnvironment(Environment):
             done = True
             reward -= 0
 
-        reward = max(0.1, min(0.9, reward))
+        reward = max(0.11, min(0.89, float(reward)))
+        if not isinstance(reward, float):
+            reward = 0.5
+
+        if reward <= 0.1:
+            reward = 0.11
+        elif reward >= 0.9:
+            reward = 0.89
         # -------------------------
         # RETURN
         # -------------------------
@@ -182,35 +189,77 @@ class BiotechEnvironment(Environment):
             }
         return self._state.model_dump()
 # =========================
-# GRADERS
+# SAFE CLAMP
 # =========================
+def clamp(score):
+    try:
+        score = float(score)
+    except:
+        return 0.5  # safe fallback
+
+    # STRICTLY inside (0,1)
+    if score <= 0.1:
+        return 0.11
+    if score >= 0.9:
+        return 0.89
+    return score
+
+
 # =========================
-# GRADERS (Strictly 0.1 - 0.9)
+# GRADERS (Bulletproof)
 # =========================
 def grade_easy(actions):
-    score = 0.25 # Safe default
-    if actions and "antibiotic" in actions:
-        steps = actions.index("antibiotic") + 1
-        score = 0.82 if steps == 1 else 0.72
-    return max(0.1, min(0.9, score))
+    try:
+        if not isinstance(actions, list):
+            return 0.5
+
+        score = 0.25
+        if "antibiotic" in actions:
+            steps = actions.index("antibiotic") + 1
+            score = 0.82 if steps == 1 else 0.72
+
+        return clamp(score)
+
+    except:
+        return 0.5
+
 
 def grade_medium(actions):
-    score = 0.25
-    if actions and "antiviral" in actions:
-        steps = actions.index("antiviral") + 1
-        score = 0.82 if steps == 1 else 0.68
-    return max(0.1, min(0.9, score))
+    try:
+        if not isinstance(actions, list):
+            return 0.5
+
+        score = 0.25
+        if "antiviral" in actions:
+            steps = actions.index("antiviral") + 1
+            score = 0.82 if steps == 1 else 0.68
+
+        return clamp(score)
+
+    except:
+        return 0.5
+
 
 def grade_hard(actions):
-    score = 0.25
-    if actions and "test" in actions:
-        test_index = actions.index("test")
-        # Check if they treated after testing
-        if any(a in ["antibiotic", "antiviral"] for a in actions[test_index+1:]):
-            score = 0.82
-        else:
-            score = 0.45
-    return max(0.2, min(0.8, score))
+    try:
+        if not isinstance(actions, list):
+            return 0.5
+
+        score = 0.25
+
+        if "test" in actions:
+            test_index = actions.index("test")
+
+            if any(a in ["antibiotic", "antiviral"] for a in actions[test_index+1:]):
+                score = 0.82
+            else:
+                score = 0.45
+
+        return clamp(score)
+
+    except:
+        return 0.5
+    
 GRADERS = {
     "easy": grade_easy,
     "medium": grade_medium,

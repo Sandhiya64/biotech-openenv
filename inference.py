@@ -40,6 +40,25 @@ def get_action(obs, task):
             return "test"
         return "antiviral" if "viral" in obs_str else "antibiotic"
     return "wait"
+
+def safe_score(rewards):
+    try:
+        if not rewards or not isinstance(rewards, list):
+            return 0.5
+
+        avg = sum(rewards) / len(rewards)
+        avg = float(avg)
+
+        if avg <= 0.1:
+            return 0.11
+        if avg >= 0.9:
+            return 0.89
+
+        return avg
+
+    except:
+        return 0.5
+    
 def run_task(env, task):
     print(f"[START] Task: {task}")
     obs = env.reset(task)
@@ -53,7 +72,7 @@ def run_task(env, task):
         rewards.append(obs.reward)
         done = obs.done
 
-    score = max(0.15, min(0.85, sum(rewards)/len(rewards) if rewards else 0.5))
+    score = safe_score(rewards)
     print(f"[END] Task: {task} | Final Reward: {score}\n")
 
 def main():
