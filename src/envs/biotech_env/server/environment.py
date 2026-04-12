@@ -204,16 +204,40 @@ def clamp(score):
         return 0.89
     return score
 
+def normalize_actions(actions):
+    try:
+        if not isinstance(actions, list):
+            return []
 
+        normalized = []
+
+        for a in actions:
+            if isinstance(a, str):
+                normalized.append(a)
+
+            elif isinstance(a, dict):
+                normalized.append(a.get("action_type", "wait"))
+
+            elif hasattr(a, "action_type"):
+                normalized.append(getattr(a, "action_type", "wait"))
+
+            else:
+                normalized.append("wait")
+
+        return normalized
+
+    except:
+        return []
+    
 # =========================
 # GRADERS (Bulletproof)
 # =========================
 def grade_easy(actions):
     try:
-        if not isinstance(actions, list):
-            return 0.5
+        actions = normalize_actions(actions)
 
         score = 0.25
+
         if "antibiotic" in actions:
             steps = actions.index("antibiotic") + 1
             score = 0.82 if steps == 1 else 0.72
@@ -223,9 +247,10 @@ def grade_easy(actions):
     except:
         return 0.5
 
-
 def grade_medium(actions):
     try:
+        actions = normalize_actions(actions)
+
         if not isinstance(actions, list):
             return 0.5
 
@@ -242,6 +267,8 @@ def grade_medium(actions):
 
 def grade_hard(actions):
     try:
+        actions = normalize_actions(actions)
+
         if not isinstance(actions, list):
             return 0.5
 
