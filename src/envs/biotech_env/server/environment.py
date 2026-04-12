@@ -128,7 +128,7 @@ class BiotechEnvironment(Environment):
             elif action_type == "test":
                 reward = 0.3
             else:
-                reward = 0
+                reward = 0.1
 
         elif disease == "viral":
             if action_type == "antiviral":
@@ -137,7 +137,7 @@ class BiotechEnvironment(Environment):
             elif action_type == "test":
                 reward = 0.2
             elif action_type == "antibiotic":
-                reward = 0
+                reward = 0.1
 
         elif disease == "ambiguous":
             if action_type == "test":
@@ -147,7 +147,7 @@ class BiotechEnvironment(Environment):
                     reward = 0.9
                     done = True
                 else:
-                    reward = 0
+                    reward = 0.1
 
         # -------------------------
         # LIMIT
@@ -204,27 +204,50 @@ def clamp(score):
         return 0.89
     return score
 
-def normalize_actions(actions):
+def extract_actions(data):
     try:
-        if not isinstance(actions, list):
+        if not isinstance(data, list):
             return []
 
-        normalized = []
+        actions = []
 
-        for a in actions:
-            if isinstance(a, str):
-                normalized.append(a)
+        for item in data:
 
-            elif isinstance(a, dict):
-                normalized.append(a.get("action_type", "wait"))
+            # Case 1: direct string
+            if isinstance(item, str):
+                actions.append(item)
 
-            elif hasattr(a, "action_type"):
-                normalized.append(getattr(a, "action_type", "wait"))
+            # Case 2: dict with action_type
+            elif isinstance(item, dict):
+
+                # Direct
+                if "action_type" in item:
+                    actions.append(item["action_type"])
+
+                # Nested (trajectory format)
+                elif "action" in item:
+                    action_obj = item["action"]
+
+                    if isinstance(action_obj, dict):
+                        actions.append(action_obj.get("action_type", "wait"))
+
+                    elif hasattr(action_obj, "action_type"):
+                        actions.append(getattr(action_obj, "action_type", "wait"))
+
+                    else:
+                        actions.append("wait")
+
+                else:
+                    actions.append("wait")
+
+            # Case 3: object
+            elif hasattr(item, "action_type"):
+                actions.append(getattr(item, "action_type", "wait"))
 
             else:
-                normalized.append("wait")
+                actions.append("wait")
 
-        return normalized
+        return actions
 
     except:
         return []
@@ -234,7 +257,7 @@ def normalize_actions(actions):
 # =========================
 def grade_easy(actions):
     try:
-        actions = normalize_actions(actions)
+        actions = extract_actions(actions)
 
         score = 0.25
 
@@ -249,7 +272,7 @@ def grade_easy(actions):
 
 def grade_medium(actions):
     try:
-        actions = normalize_actions(actions)
+        actions = extract_actions(actions)
 
         if not isinstance(actions, list):
             return 0.5
@@ -267,7 +290,7 @@ def grade_medium(actions):
 
 def grade_hard(actions):
     try:
-        actions = normalize_actions(actions)
+        actions = extract_actions(actions)
 
         if not isinstance(actions, list):
             return 0.5
