@@ -61,26 +61,20 @@ def safe_score(rewards):
     
 def run_task(env, task):
     print(f"[START] Task: {task}")
-    obs = env.reset(task) # Ensure you pass the task name
+    obs = env.reset(task)
     rewards = []
     done = False
     
-    for _ in range(5):
-        if done: break
+    while not done and len(rewards) < 5:
         action = get_action(obs, task)
         print(f"[STEP] Action: {action}")
         obs = env.step({"action_type": action})
-        # Clamp individual reward
-        r = getattr(obs, 'reward', 0.1)
-        rewards.append(max(0.15, min(0.85, r)))
-        done = getattr(obs, 'done', False)
+        rewards.append(obs.reward)
+        done = obs.done
 
-    # Calculate final average score
-    final_score = sum(rewards) / len(rewards) if rewards else 0.5
-    # FINAL CLAMP: 0.2 to 0.8 is the "Golden Zone"
-    final_score = max(0.2, min(0.8, final_score))
-
-    print(f"[END] Task: {task} | Final Reward: {final_score}\n")
+    # Change this clamp to avoid exact boundaries
+    score = max(0.005, min(0.995, sum(rewards)/len(rewards) if rewards else 0.495))
+    print(f"[END] Task: {task} | Final Reward: {score}\n")
     
 def main():
     try:

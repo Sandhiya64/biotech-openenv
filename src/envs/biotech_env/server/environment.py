@@ -58,7 +58,7 @@ class BiotechEnvironment(Environment):
             vitals={"temp": 101.0},
             health_score=50.0,
             done=False,
-            reward=0.11
+            reward=0.115
         )
 
     def step(self, action):
@@ -80,27 +80,27 @@ class BiotechEnvironment(Environment):
         self.history.append(action_type)
         self._state.step_count += 1
 
-        reward = 0.11
+        reward = 0.115
         done = False
 
         disease = self._state.disease
 
         if disease == "bacterial":
             if action_type == "antibiotic":
-                reward = 0.89
+                reward = 0.895
                 done = True
 
         elif disease == "viral":
             if action_type == "antiviral":
-                reward = 0.89
+                reward = 0.895
                 done = True
 
         elif disease == "ambiguous":
             if action_type == "test":
-                reward = 0.5
+                reward = 0.505
             elif action_type in ["antibiotic", "antiviral"]:
                 if "test" in self.history[:-1]:
-                    reward = 0.89
+                    reward = 0.895
                     done = True
 
         return BiotechObservation(
@@ -135,9 +135,9 @@ def clamp(score):
 
     # STRICTLY inside (0,1)
     if score <= 0.1:
-        return 0.11
+        return 0.115
     if score >= 0.9:
-        return 0.89
+        return 0.895
     return score
 
 def extract_actions(data):
@@ -192,19 +192,19 @@ def safe_return(score):
     try:
         score = float(score)
     except:
-        return 0.5
+        return 0.55
 
     # HARD enforce strict bounds
     if score <= 0.0:
-        return 0.5
+        return 0.55
     if score >= 1.0:
-        return 0.5
+        return 0.55
 
     # Avoid boundary edges
     if score <= 0.1:
-        return 0.11
+        return 0.115
     if score >= 0.9:
-        return 0.89
+        return 0.895
 
     return float(score)
     
@@ -212,30 +212,35 @@ def safe_return(score):
 # GRADERS (Strictly 0.2 - 0.8)
 # =========================
 def grade_easy(actions):
-    # Use explicit floats and avoid 0.0 or 1.0
-    score = 0.25 
+    score = 0.245  # Was 0.25
     if actions and "antibiotic" in actions:
         steps = actions.index("antibiotic") + 1
-        score = 0.82 if steps == 1 else 0.72
-    return max(0.2, min(0.8, score))
+        if steps == 1:
+            score = 0.815  # Was 0.82
+        else:
+            score = 0.715  # Was 0.72
+    return max(0.001, min(0.999, score))
 
 def grade_medium(actions):
-    score = 0.25
+    score = 0.245  # Was 0.25
     if actions and "antiviral" in actions:
         steps = actions.index("antiviral") + 1
-        score = 0.82 if steps == 1 else 0.68
-    return max(0.2, min(0.8, score))
+        if steps == 1:
+            score = 0.815  # Was 0.82
+        else:
+            score = 0.675  # Was 0.68
+    return max(0.001, min(0.999, score))
 
 def grade_hard(actions):
-    score = 0.25
+    score = 0.245  # Was 0.25
     if actions and "test" in actions:
-        idx = actions.index("test")
-        # Check if they treated correctly after testing
-        if any(a in ["antibiotic", "antiviral"] for a in actions[idx+1:]):
-            score = 0.82
+        test_index = actions.index("test")
+        # Check if they treated after testing
+        if any(a in ["antibiotic", "antiviral"] for a in actions[test_index+1:]):
+            score = 0.815  # Was 0.82
         else:
-            score = 0.45
-    return max(0.2, min(0.8, score))
+            score = 0.445  # Was 0.45
+    return max(0.001, min(0.999, score))
 
 GRADERS = {
     "easy": grade_easy,
