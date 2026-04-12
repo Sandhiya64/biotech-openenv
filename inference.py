@@ -73,7 +73,11 @@ def run_task(env, task):
         done = obs.done
 
     score = safe_score(rewards)
-    print(f"[END] Task: {task} | Final Reward: {score}\n")
+    # Ensure score is strictly > 0 and < 1
+    epsilon = 0.0001
+    final_score = max(epsilon, min(1.0 - epsilon, score))
+
+    print(f"[END] Task: {task} | Final Reward: {final_score}\n")
 
 def main():
     try:
