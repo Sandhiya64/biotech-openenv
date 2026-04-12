@@ -273,76 +273,34 @@ def safe_return(score):
     return float(score)
     
 # =========================
-# GRADERS (Bulletproof)
+# GRADERS (Strictly 0.2 - 0.8)
 # =========================
-# def grade_easy(actions):
-#     try:
-#         actions = extract_actions(actions)
-
-#         score = 0.25
-
-#         if "antibiotic" in actions:
-#             steps = actions.index("antibiotic") + 1
-#             score = 0.82 if steps == 1 else 0.72
-
-#         return clamp(score)
-
-#     except:
-#         return 0.5
-    
-#     return safe_return(0.7)
-
-# def grade_medium(actions):
-#     try:
-#         actions = extract_actions(actions)
-
-#         if not isinstance(actions, list):
-#             return 0.5
-
-#         score = 0.25
-#         if "antiviral" in actions:
-#             steps = actions.index("antiviral") + 1
-#             score = 0.82 if steps == 1 else 0.68
-
-#         return clamp(score)
-
-#     except:
-#         return 0.5
-#     return safe_return(0.7)
-
-
-# def grade_hard(actions):
-#     try:
-#         actions = extract_actions(actions)
-
-#         if not isinstance(actions, list):
-#             return 0.5
-
-#         score = 0.25
-
-#         if "test" in actions:
-#             test_index = actions.index("test")
-
-#             if any(a in ["antibiotic", "antiviral"] for a in actions[test_index+1:]):
-#                 score = 0.82
-#             else:
-#                 score = 0.45
-
-#         return clamp(score)
-
-#     except:
-#         return 0.5
-#     return safe_return(0.7)
-
 def grade_easy(actions):
-    return 0.7
+    # Use explicit floats and avoid 0.0 or 1.0
+    score = 0.25 
+    if actions and "antibiotic" in actions:
+        steps = actions.index("antibiotic") + 1
+        score = 0.82 if steps == 1 else 0.72
+    return max(0.2, min(0.8, score))
 
 def grade_medium(actions):
-    return 0.7
+    score = 0.25
+    if actions and "antiviral" in actions:
+        steps = actions.index("antiviral") + 1
+        score = 0.82 if steps == 1 else 0.68
+    return max(0.2, min(0.8, score))
 
 def grade_hard(actions):
-    return 0.7
-    
+    score = 0.25
+    if actions and "test" in actions:
+        idx = actions.index("test")
+        # Check if they treated correctly after testing
+        if any(a in ["antibiotic", "antiviral"] for a in actions[idx+1:]):
+            score = 0.82
+        else:
+            score = 0.45
+    return max(0.2, min(0.8, score))
+
 GRADERS = {
     "easy": grade_easy,
     "medium": grade_medium,
