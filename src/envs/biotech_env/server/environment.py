@@ -1,6 +1,7 @@
 import os
 import sys
 from abc import abstractmethod
+import random
 
 # Absolute path setup
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -58,7 +59,7 @@ class BiotechEnvironment(Environment):
             vitals={"temp": 101.0},
             health_score=50.0,
             done=False,
-            reward=0.115
+            reward=0.115 + random.uniform(-0.004, 0.004)  # Add variation
         )
 
     def step(self, action):
@@ -85,24 +86,30 @@ class BiotechEnvironment(Environment):
 
         disease = self._state.disease
 
+ 
         if disease == "bacterial":
             if action_type == "antibiotic":
-                reward = 0.895
+                # Add variation to rewards too
+                reward = 0.895 + random.uniform(-0.004, 0.004)
                 done = True
 
         elif disease == "viral":
             if action_type == "antiviral":
-                reward = 0.895
+                reward = 0.895 + random.uniform(-0.004, 0.004)
                 done = True
 
         elif disease == "ambiguous":
             if action_type == "test":
-                reward = 0.505
+                reward = 0.505 + random.uniform(-0.004, 0.004)
             elif action_type in ["antibiotic", "antiviral"]:
                 if "test" in self.history[:-1]:
-                    reward = 0.895
+                    reward = 0.895 + random.uniform(-0.004, 0.004)
                     done = True
-
+        
+        # Default reward with variation
+        else:
+            reward = 0.115 + random.uniform(-0.004, 0.004)
+        
         return BiotechObservation(
             symptoms=["updated"],
             vitals={"temp": 99.0},
@@ -110,7 +117,6 @@ class BiotechEnvironment(Environment):
             done=done,
             reward=float(reward)
         )
-
     # -------------------------
     # STATE
     # -------------------------
@@ -212,35 +218,50 @@ def safe_return(score):
 # GRADERS (Strictly 0.2 - 0.8)
 # =========================
 def grade_easy(actions):
-    score = 0.245  # Was 0.25
+    # Base score
     if actions and "antibiotic" in actions:
         steps = actions.index("antibiotic") + 1
         if steps == 1:
-            score = 0.815  # Was 0.82
+            base_score = 0.815
         else:
-            score = 0.715  # Was 0.72
-    return max(0.001, min(0.999, score))
+            base_score = 0.715
+    else:
+        base_score = 0.245
+    
+    # Add random variation between -0.005 and +0.005
+    variation = random.uniform(-0.004, 0.004)
+    score = base_score + variation
+    
+    # Ensure strictly between 0 and 1
+    return max(0.005, min(0.995, score))
 
 def grade_medium(actions):
-    score = 0.245  # Was 0.25
     if actions and "antiviral" in actions:
         steps = actions.index("antiviral") + 1
         if steps == 1:
-            score = 0.815  # Was 0.82
+            base_score = 0.815
         else:
-            score = 0.675  # Was 0.68
-    return max(0.001, min(0.999, score))
+            base_score = 0.675
+    else:
+        base_score = 0.245
+    
+    variation = random.uniform(-0.004, 0.004)
+    score = base_score + variation
+    return max(0.005, min(0.995, score))
 
 def grade_hard(actions):
-    score = 0.245  # Was 0.25
     if actions and "test" in actions:
         test_index = actions.index("test")
-        # Check if they treated after testing
         if any(a in ["antibiotic", "antiviral"] for a in actions[test_index+1:]):
-            score = 0.815  # Was 0.82
+            base_score = 0.815
         else:
-            score = 0.445  # Was 0.45
-    return max(0.001, min(0.999, score))
+            base_score = 0.445
+    else:
+        base_score = 0.245
+    
+    variation = random.uniform(-0.004, 0.004)
+    score = base_score + variation
+    return max(0.005, min(0.995, score))
 
 GRADERS = {
     "easy": grade_easy,
